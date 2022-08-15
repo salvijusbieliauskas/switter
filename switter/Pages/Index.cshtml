@@ -6,6 +6,20 @@
 
 <body style="background-color:#191d24;margin:auto">
     <div class="text-center" style="margin:auto">
+        <h1 style="color:white;display:@Model.visibility">By using this website, I consent to the terms specified in the Privacy Policy (and agree not to say the n word)</h1>
+        <form method="post">
+            <button asp-page-handler="Accept" asp-page="Index" asp-route-data="SUDAS" style="background-color:#61dbfb; color:#191d24; display:@Model.visibility">okay 👍</button>
+        </form>
+        <div>
+        <form method="post">
+            <textarea asp-page-handler="Text" asp-page="Index" asp-route-data="XD" style="background-color:#191d24; color:white; display:@Model.othervisibility; resize:none" placeholder="write something really not funny here..." rows="6" cols="50" maxlength="280"></textarea>
+        </form>
+        <form method="post">
+            <button asp-page-handler="Text" asp-page="Index" asp-route-data="XD" style="background-color:#61dbfb; color:#191d24; display:@Model.othervisibility; ">post</button>
+        </form>
+        </div>
+    </div>
+    <div class="text-center" style="margin:auto">
         <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/keemstar?ref_src=twsrc%5Etfw" data-chrome="transparent" data-width="100%">Tweets by realwhoobama</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
         <h1>:3</h1>
     </div>
