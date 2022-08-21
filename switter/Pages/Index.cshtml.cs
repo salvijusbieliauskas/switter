@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace switter.Pages
 {
-    public class IndexModel : PageModel
+    public class IndexModel1 : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<IndexModel1> _logger;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel1(ILogger<IndexModel1> logger)
         {
             _logger = logger;
         }

@@ -1,0 +1,28 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+
+<body style="background-color:#191d24;margin:auto">
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" style="border:1px solid white;margin-left:auto;margin-right:auto;display:block;width:50%;margin-top:auto;margin-bottom:auto;height:80%;text-align:center;display:flex;overflow:auto;flex-direction:column;border-radius: 5px;justify-content:space-around">
+        <h2 style="color:white">Create a new account</h2>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <label style="color:white" asp-for="Input.Username"></label>
+            <input asp-for="Input.Username" style="margin:10px;padding:10px;text-align:center" autocomplete="username" aria-required="true" />
+            <span style="color:white" asp-validation-for="Input.Username" class="text-danger"></span>
+            <label style="color:white" asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" style="margin:10px;padding:10px;text-align:center" autocomplete="username" aria-required="true" />
+            <span style="color:white" asp-validation-for="Input.Email" class="text-danger"></span>
+            <label style="color:white" asp-for="Input.Password"></label>
+            <input asp-for="Input.Password" style="margin:10px;padding:10px;text-align:center" autocomplete="new-password" aria-required="true" />
+            <span style="color:white" asp-validation-for="Input.Password" class="text-danger"></span>
+            <label style="color:white" asp-for="Input.ConfirmPassword"></label>
+            <input asp-for="Input.ConfirmPassword" style="margin:10px;padding:10px;text-align:center" autocomplete="new-password" aria-required="true" />
+            <span style="color:white" asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        <button id="registerSubmit" type="submit" style="background-color:#61dbfb; color:#191d24;margin:10px;padding:10px;border-radius: 12px;">Register</button>
+    </form>
+</body>
+

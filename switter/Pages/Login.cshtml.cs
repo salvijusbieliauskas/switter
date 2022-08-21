@@ -6,15 +6,15 @@ namespace switter.Pages
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     [IgnoreAntiforgeryToken]
-    public class LoginModel : PageModel
+    public class LoginModel1 : PageModel
     {
         public string? RequestId { get; set; }
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        private readonly ILogger<LoginModel> _logger;
+        private readonly ILogger<LoginModel1> _logger;
 
-        public LoginModel(ILogger<LoginModel> logger)
+        public LoginModel1(ILogger<LoginModel1> logger)
         {
             _logger = logger;
         }
