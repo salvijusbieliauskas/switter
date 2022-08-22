@@ -17,17 +17,22 @@
         else
         {
         <div>
-        <form method="post">
+        <form method="post" style="margin-left:auto;margin-right:auto;display:block;width:50%;margin-top:auto;margin-bottom:auto;height:80%;text-align:center;display:flex;overflow:auto;flex-direction:column;border-radius: 5px;justify-content:space-around" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <span style="color:white" asp-validation-for="Input.PostText" class="text-danger"></span>
-            <textarea asp-for="Input.PostText" style="background-color:#191d24; color:white; resize:none" placeholder="write something really not funny here..." rows="6" cols="50" maxlength="280"></textarea>>
-            <button style="background-color:#61dbfb; color:#191d24;">post</button>
+            <div style="flex-direction:row;">
+                <textarea asp-for="Input.PostText" style="background-color:#191d24; color:white; resize:none" placeholder="write something really not funny here..." rows="6" cols="50" maxlength="280"></textarea>
+                <h3 style="color:white">you can also add a funny image</h3>
+                <input asp-for="Input.Media" method="post" enctype="multipart/form-data" accept="image/png, image/jpeg, image/jpg, image/webp" type="file" style="color:white;content:"SUDAS">
+            <input asp-for="Input.AnotherInput" class="form-control" style="display:none"/>
+            </div>
+            <button style="background-color:#61dbfb; color:#191d24;margin-bottom:20px">post</button>
         </form>
         </div>
         }
     </div>
     <div class="text-center" style="margin:auto">
-        <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/realwhoobama" data-chrome="transparent" data-width="100%">Tweets by realwhoobama</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/realwhoobama" data-chrome="transparent" data-width="100%"></a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
         <h1>:3</h1>
     </div>
 </body>

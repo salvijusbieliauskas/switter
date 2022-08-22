@@ -20,10 +20,12 @@ namespace switter.Pages
     public class IndexModel1 : PageModel
     {
         private readonly ILogger<IndexModel1> _logger;
+        private readonly switter.Data.switterContext _context;
 
-        public IndexModel1(ILogger<IndexModel1> logger)
+        public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger)
         {
             _logger = logger;
+            _context = context;
         }
         public string ReturnUrl { get; set; }
 
@@ -36,6 +38,9 @@ namespace switter.Pages
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            public IFormFile Media { get; set; }
+            public string AnotherInput { get; set; }
+
             [Required]
             [StringLength(280, ErrorMessage = "The {0} must be at max {1} characters long.")]
             [DataType(DataType.Text)]
@@ -45,13 +50,50 @@ namespace switter.Pages
 
         //[TempData]
         public string StatusMessage { get; set; }
+        public List<string> supportedTypes = new List<string>() { "image/webp", "image/jpg", "image/jpeg", "image/png" };
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            if (TwitterAPI.VerifyTweet(Input.PostText) == true)
+
+
+            var verificationStatus = TwitterAPI.VerifyTweet(Input.PostText);
+            if (verificationStatus.success)
             {
-                var status = TwitterAPI.SendTweet(Input.PostText);
+                string mediaID = "";
+                if(Input.Media != null && Input.Media.Length>0)
+                {
+                    if (!supportedTypes.Contains(Input.Media.ContentType))
+                    {
+                        StatusMessage = "Unsupported file type";
+                        System.Diagnostics.Debug.WriteLine(Input.Media.ContentType);
+                        return LocalRedirect("/");
+                    }
+                    //means that there is some media
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await Input.Media.CopyToAsync(memoryStream);
+                        if(memoryStream.Length>5000000)
+                        {
+                            StatusMessage = "Maximum image size is 5MB";
+                            return LocalRedirect("/");
+                        }
+                        else
+                        {
+                            string id = TwitterAPI.UploadImage(memoryStream.ToArray());
+                            if (id == "failed")
+                            {
+                                StatusMessage = "Image upload failed.";
+                                return LocalRedirect("/");
+                            }
+                            else
+                            {
+                                mediaID = id;
+                            }
+                        }
+                    }
+                }
+                var status = TwitterAPI.SendTweet(Input.PostText, mediaID);
                 if (status.success)
                     StatusMessage = "Tweet sent!";
                 else
@@ -59,9 +101,9 @@ namespace switter.Pages
             }
             else
             {
-                StatusMessage = "Your tweet was invalid.";
+                StatusMessage = verificationStatus.message;
             }
-            return Page();
+            return LocalRedirect("/");
         }
         public bool accepted = false;
         public IActionResult OnPostAccept(string data)
