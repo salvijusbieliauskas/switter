@@ -3,24 +3,31 @@
 @{
     ViewData["Title"] = "Garbage";
 }
-
+@using switter.Areas.Identity.Pages.Account
 <body style="background-color:#191d24;margin:auto">
     <div class="text-center" style="margin:auto">
-        <h1 style="color:white;display:@Model.visibility">By using this website, you consent to the terms specified in the <a href="/Privacy">Privacy Policy</a> and agree to the <a href="/Rules">Rules</a></h1>
+    <partial name="_StatusMessage" for="StatusMessage"/>
+        @if (Request.Cookies["terms"] == null || Request.Cookies["terms"] == "false")
+        {
+        <h1 style="color:white;">By using this website, you consent to the terms specified in the <a href="/Privacy">Privacy Policy</a> and agree to the <a href="/Rules">Rules</a></h1>
         <form method="post">
-            <button asp-page-handler="Accept" asp-page="Index" asp-route-data="SUDAS" style="background-color:#61dbfb; color:#191d24; display:@Model.visibility; width:100%; height:300%">okay 👍</button>
+            <button asp-page-handler="Accept" asp-page="Index" asp-route-data="SUDAS" style="background-color:#61dbfb; color:#191d24; width:100%; height:300%">okay 👍</button>
         </form>
+        }
+        else
+        {
         <div>
         <form method="post">
-            <textarea asp-page-handler="Text" asp-page="Index" asp-route-data="XD" style="background-color:#191d24; color:white; display:@Model.othervisibility; resize:none" placeholder="write something really not funny here..." rows="6" cols="50" maxlength="280"></textarea>
-        </form>
-        <form method="post">
-            <button asp-page-handler="Text" asp-page="Index" asp-route-data="XD" style="background-color:#61dbfb; color:#191d24; display:@Model.othervisibility; ">post</button>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <span style="color:white" asp-validation-for="Input.PostText" class="text-danger"></span>
+            <textarea asp-for="Input.PostText" style="background-color:#191d24; color:white; resize:none" placeholder="write something really not funny here..." rows="6" cols="50" maxlength="280"></textarea>>
+            <button style="background-color:#61dbfb; color:#191d24;">post</button>
         </form>
         </div>
+        }
     </div>
     <div class="text-center" style="margin:auto">
-        <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/keemstar?ref_src=twsrc%5Etfw" data-chrome="transparent" data-width="100%">Tweets by realwhoobama</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/realwhoobama" data-chrome="transparent" data-width="100%">Tweets by realwhoobama</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
         <h1>:3</h1>
     </div>
 </body>

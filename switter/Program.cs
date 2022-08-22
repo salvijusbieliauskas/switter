@@ -13,13 +13,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = false; options.Password.RequireLowercase = true;options.Password.RequireUppercase = true;options.Password.RequireNonAlphanumeric = false; })
+builder.Services.AddDefaultIdentity<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = true; options.Password.RequireLowercase = true;options.Password.RequireUppercase = true;options.Password.RequireNonAlphanumeric = false; })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
-
+TwitterAPI.init(builder.Configuration["ConsumerKey"], builder.Configuration["ConsumerSecret"], builder.Configuration["AccessToken"], builder.Configuration["AccessSecret"]);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,5 +43,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-
 app.Run();

@@ -1,5 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 
 namespace switter.Pages
 {
@@ -11,44 +25,49 @@ namespace switter.Pages
         {
             _logger = logger;
         }
-        public void OnGet()
+        public string ReturnUrl { get; set; }
+
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        public class InputModel
         {
-            string accepted = string.Empty;
-            var terms = Request.Cookies["terms"];
-            if (terms != null)
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [StringLength(280, ErrorMessage = "The {0} must be at max {1} characters long.")]
+            [DataType(DataType.Text)]
+            [Display(Name = "Post text")]
+            public string PostText { get; set; }
+        }
+
+        //[TempData]
+        public string StatusMessage { get; set; }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+            if (TwitterAPI.VerifyTweet(Input.PostText) == true)
             {
-                accepted = terms.ToString();
-                if (accepted == "false")
-                {
-                    visibility = "initial";
-                    othervisibility = "none";
-                }
+                var status = TwitterAPI.SendTweet(Input.PostText);
+                if (status.success)
+                    StatusMessage = "Tweet sent!";
                 else
-                {
-                    visibility = "none";
-                    othervisibility = "initial";
-                }
+                    StatusMessage = status.message;
             }
             else
             {
-                visibility = "initial";
-                othervisibility = "none";
+                StatusMessage = "Your tweet was invalid.";
             }
+            return Page();
         }
-        public string visibility { get; set; }
-        public string othervisibility { get; set; }
+        public bool accepted = false;
         public IActionResult OnPostAccept(string data)
         {
-            visibility = "none";
-            othervisibility = "initial";
             Response.Cookies.Append("terms", "true");
-            return Page();
-        }
-        public IActionResult OnPostText(string data)
-        {
-            visibility = "none";
-            othervisibility = "initial";
-            return Page();
+            return LocalRedirect("/");
         }
     }
 }
