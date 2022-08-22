@@ -113,6 +113,12 @@ namespace switter.Areas.Identity.Pages.Account.Manage
             }
 
             var email = await _userManager.GetEmailAsync(user);
+            var sudas = await _userManager.FindByEmailAsync(Input.NewEmail);
+            if (sudas != null)
+            {
+                StatusMessage =  "A user with this Email already exists";
+                return RedirectToPage();
+            }
             if (Input.NewEmail != email)
             {
                 var userId = await _userManager.GetUserIdAsync(user);

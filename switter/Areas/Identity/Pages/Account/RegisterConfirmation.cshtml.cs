@@ -18,12 +18,16 @@ namespace switter.Areas.Identity.Pages.Account
     public class RegisterConfirmationModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserStore<IdentityUser> _userStore;
+        private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly IEmailSender _sender;
 
-        public RegisterConfirmationModel(UserManager<IdentityUser> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<IdentityUser> userManager, IEmailSender sender, IUserStore<IdentityUser> userStore)
         {
             _userManager = userManager;
             _sender = sender;
+            _userStore = userStore;
+            _emailStore = GetEmailStore();
         }
 
         /// <summary>
@@ -52,7 +56,10 @@ namespace switter.Areas.Identity.Pages.Account
             }
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            var user = await _userManager.FindByEmailAsync(email);
+            //var user = await _userManager.FindByEmailAsync(email);
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+            var user = await _emailStore.FindByEmailAsync(email, token);
             if (user == null)
             {
                 return NotFound($"Unable to load user with email '{email}'.");
@@ -74,6 +81,14 @@ namespace switter.Areas.Identity.Pages.Account
             }
 
             return Page();
+        }
+        private IUserEmailStore<IdentityUser> GetEmailStore()
+        {
+            if (!_userManager.SupportsUserEmail)
+            {
+                throw new NotSupportedException("The default UI requires a user store with email support.");
+            }
+            return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }
 }
