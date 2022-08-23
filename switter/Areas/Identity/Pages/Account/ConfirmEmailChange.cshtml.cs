@@ -15,10 +15,10 @@ namespace switter.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailChangeModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly SignInManager<Areas.Identity.Data.switterUser> _signInManager;
 
-        public ConfirmEmailChangeModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public ConfirmEmailChangeModel(UserManager<Areas.Identity.Data.switterUser> userManager, SignInManager<Areas.Identity.Data.switterUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

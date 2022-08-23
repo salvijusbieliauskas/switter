@@ -1,0 +1,35 @@
+﻿@page
+@model LeaderboardModel
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+<body style="background-color:#191d24">
+    <h1 style="color:white">@ViewData["Title"]</h1>
+    <p style="color:white">This page displays 10 users that have so far gained the most likes on their posts.</p>
+</body>
+<table style="width:100%">
+    <thead>
+        <tr>
+            <th style="color:white">
+                @Html.DisplayNameFor(model => model.post[0].ID)
+            </th>
+            <th style="color:white">
+                @Html.DisplayNameFor(model => model.post[0].PosterID)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+<tbody>
+    @foreach (var item in Model.post) {
+        <tr>
+            <td style="color:white">
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td style="color:white">
+                @Html.DisplayFor(modelItem => item.PosterID)
+            </td>
+        </tr>
+    }
+</tbody>
+</table>

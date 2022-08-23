@@ -21,13 +21,14 @@ namespace switter
 {
     public static class TwitterAPI
     {
-        static string apik, apis, acct, accs;
-        public static void init(string apikey, string apisecret, string accesstoken, string accesssecret)
+        static string apik, apis, acct, accs,bearer;
+        public static void init(string apikey, string apisecret, string accesstoken, string accesssecret, string bearertoken)
         {
             apik = apikey;
             apis = apisecret;
             acct = accesstoken;
             accs = accesssecret;
+            bearer = bearertoken;
         }
         public static TwitterError SendTweet(string tweet, string mediaID)
         {
@@ -58,33 +59,66 @@ namespace switter
             System.Diagnostics.Debug.WriteLine(response.Content);
             if (response.Content.Substring(0, 8).Contains("data"))
             {
-                return new TwitterError(true, "Success");
+                return new TwitterError(true, "Success", JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string,string>>>(response.Content).GetValueOrDefault("data").GetValueOrDefault("id"));
             }
-            else return new TwitterError(false, JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("detail"));
+            else
+            {
+                try
+                {
+                    return new TwitterError(false, JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("detail", "An unknown error has occured"), "");
+                }
+                catch
+                {
+                    return new TwitterError(false, "An unknown error has occured", "");
+                }
+            }
+        }
+        public static List<int> GetTweets(List<string> tweetids)
+        {
+            var list = new List<int>();
+
+            bool success = false;
+            string auth = "Bearer "+bearer;
+            var client = new RestClient("https://api.twitter.com/2/tweets");
+            client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", auth);
+            request.AddHeader("User-Agent", "SUDAS");
+            var dict = new Dictionary<string, object>();
+            dict.Add("ids", tweetids);
+            dict.Add("media.fields", "public_metrics");
+            var serialized = JsonConvert.SerializeObject(dict);
+            var body = serialized;
+            request.AddParameter("application/json", body, ParameterType.RequestBody);
+            IRestResponse response = client.Execute(request);
+            System.Diagnostics.Debug.WriteLine("request: " + serialized);
+            System.Diagnostics.Debug.WriteLine("response: "+response.Content);
+
+            return list;
         }
         public static List<string> forbiddenWords = new List<string>() { "nigger", "nlgger", "n1gger", "nigg3r", "n1gg3r", "nlg", "nig", "n|g", "n\\g", "n/g", "n//g", "n\\\\g" };
         public static TwitterError VerifyTweet(string tweet)
         {
             if (tweet == null || tweet.Length == 0)
             {
-                return new TwitterError(false, "Your tweet should contain at least one character");
+                return new TwitterError(false, "Your tweet should contain at least one character", "");
             }
             else if (tweet.Length > 280)
             {
-                return new TwitterError(false, "The maximum length of a tweet is 280 characters");
+                return new TwitterError(false, "The maximum length of a tweet is 280 characters", "");
             }
             if (tweet.Contains('@'))
             {
-                return new TwitterError(false, "Tagging other people is not supported by the Twitter API");
+                return new TwitterError(false, "Tagging other people is not supported by the Twitter API", "");
             }
             foreach (var word in forbiddenWords)
             {
                 if (tweet.ToLower().Contains(word))
                 {
-                    return new TwitterError(false, "The tweet contains forbidden words");
+                    return new TwitterError(false, "The tweet contains forbidden words", "");
                 }
             }
-            return new TwitterError(true, "Success");
+            return new TwitterError(true, "Success", "");
         }
         public static string UploadImage(byte[] data) //returns the media ID or the word failed
         {
@@ -112,10 +146,12 @@ namespace switter
     {
         public bool success;
         public string message;
-        public TwitterError(bool success, string message)
+        public string ID;
+        public TwitterError(bool success, string message, string iD)
         {
             this.success = success;
             this.message = message;
+            this.ID = iD;
         }
     }
     //sudas

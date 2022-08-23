@@ -14,12 +14,12 @@ namespace switter.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly SignInManager<Areas.Identity.Data.switterUser> _signInManager;
 
         public IndexModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserManager<Areas.Identity.Data.switterUser> userManager,
+            SignInManager<Areas.Identity.Data.switterUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -61,7 +61,7 @@ namespace switter.Areas.Identity.Pages.Account.Manage
             public string Username { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(Areas.Identity.Data.switterUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
 

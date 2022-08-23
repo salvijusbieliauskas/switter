@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using switter;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using switter.Data;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,13 +15,13 @@ builder.Services.AddDbContext<switterContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = true; options.Password.RequireLowercase = true;options.Password.RequireUppercase = true;options.Password.RequireNonAlphanumeric = false; })
+builder.Services.AddDefaultIdentity<switter.Areas.Identity.Data.switterUser>(options => { options.SignIn.RequireConfirmedAccount = true; options.Password.RequireLowercase = true;options.Password.RequireUppercase = true;options.Password.RequireNonAlphanumeric = false; })
     .AddEntityFrameworkStores<switterContext>();
 builder.Services.AddRazorPages();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
-TwitterAPI.init(builder.Configuration["ConsumerKey"], builder.Configuration["ConsumerSecret"], builder.Configuration["AccessToken"], builder.Configuration["AccessSecret"]);
+TwitterAPI.init(builder.Configuration["ConsumerKey"], builder.Configuration["ConsumerSecret"], builder.Configuration["AccessToken"], builder.Configuration["AccessSecret"], builder.Configuration["BearerToken"]);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

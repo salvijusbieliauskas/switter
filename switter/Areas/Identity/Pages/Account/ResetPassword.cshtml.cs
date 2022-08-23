@@ -16,9 +16,9 @@ namespace switter.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
 
-        public ResetPasswordModel(UserManager<IdentityUser> userManager)
+        public ResetPasswordModel(UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _userManager = userManager;
         }

@@ -26,4 +26,9 @@ public class Post
 {
     public string ID { get; set; }
     public string PosterID { get; set; }
+    public Post(string iD, string posterID)
+    {
+        ID = iD;
+        PosterID = posterID;
+    }
 }

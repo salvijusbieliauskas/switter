@@ -16,9 +16,9 @@ namespace switter.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
 
-        public ConfirmEmailModel(UserManager<IdentityUser> userManager)
+        public ConfirmEmailModel(UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _userManager = userManager;
         }

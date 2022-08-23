@@ -23,17 +23,17 @@ namespace switter.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<Areas.Identity.Data.switterUser> _signInManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly IUserStore<Areas.Identity.Data.switterUser> _userStore;
+        private readonly IUserEmailStore<Areas.Identity.Data.switterUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<Areas.Identity.Data.switterUser> userManager,
+            IUserStore<Areas.Identity.Data.switterUser> userStore,
+            SignInManager<Areas.Identity.Data.switterUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -164,27 +164,27 @@ namespace switter.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private Areas.Identity.Data.switterUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<Areas.Identity.Data.switterUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(Areas.Identity.Data.switterUser)}'. " +
+                    $"Ensure that '{nameof(Areas.Identity.Data.switterUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<Areas.Identity.Data.switterUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<Areas.Identity.Data.switterUser>)_userStore;
         }
     }
 }

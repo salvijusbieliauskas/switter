@@ -21,11 +21,14 @@ namespace switter.Pages
     {
         private readonly ILogger<IndexModel1> _logger;
         private readonly switter.Data.switterContext _context;
+        private readonly IUserStore<Areas.Identity.Data.switterUser> userStore;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
 
-        public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger)
+        public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger, IUserStore<Areas.Identity.Data.switterUser> userStore, UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
         }
         public string ReturnUrl { get; set; }
 
@@ -95,10 +98,17 @@ namespace switter.Pages
                 }
                 var status = TwitterAPI.SendTweet(Input.PostText, mediaID);
                 if (status.success)
-                    StatusMessage = "Tweet sent!";
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user != null)
+                    {
+                        _context.post.Add(new Data.Post(status.ID,user.Id));
+                        _context.SaveChanges();
+                    }
+                }
                 else
                     StatusMessage = status.message;
-            }
+            } 
             else
             {
                 StatusMessage = verificationStatus.message;

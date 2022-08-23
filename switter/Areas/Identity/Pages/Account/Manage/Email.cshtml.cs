@@ -17,13 +17,13 @@ namespace switter.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly SignInManager<Areas.Identity.Data.switterUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<Areas.Identity.Data.switterUser> userManager,
+            SignInManager<Areas.Identity.Data.switterUser> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -73,7 +73,7 @@ namespace switter.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(Areas.Identity.Data.switterUser user)
         {
             var email = await _userManager.GetEmailAsync(user);
             Email = email;

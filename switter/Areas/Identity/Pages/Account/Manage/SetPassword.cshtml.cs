@@ -13,12 +13,12 @@ namespace switter.Areas.Identity.Pages.Account.Manage
 {
     public class SetPasswordModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly SignInManager<Areas.Identity.Data.switterUser> _signInManager;
 
         public SetPasswordModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserManager<Areas.Identity.Data.switterUser> userManager,
+            SignInManager<Areas.Identity.Data.switterUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

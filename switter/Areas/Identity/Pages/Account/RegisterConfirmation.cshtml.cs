@@ -17,12 +17,12 @@ namespace switter.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterConfirmationModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        private readonly IUserStore<Areas.Identity.Data.switterUser> _userStore;
+        private readonly IUserEmailStore<Areas.Identity.Data.switterUser> _emailStore;
         private readonly IEmailSender _sender;
 
-        public RegisterConfirmationModel(UserManager<IdentityUser> userManager, IEmailSender sender, IUserStore<IdentityUser> userStore)
+        public RegisterConfirmationModel(UserManager<Areas.Identity.Data.switterUser> userManager, IEmailSender sender, IUserStore<Areas.Identity.Data.switterUser> userStore)
         {
             _userManager = userManager;
             _sender = sender;
@@ -82,13 +82,13 @@ namespace switter.Areas.Identity.Pages.Account
 
             return Page();
         }
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<Areas.Identity.Data.switterUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<Areas.Identity.Data.switterUser>)_userStore;
         }
     }
 }
