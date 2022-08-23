@@ -12,8 +12,8 @@ using switter.Data;
 namespace switter.Migrations
 {
     [DbContext(typeof(switterContext))]
-    [Migration("20220822105518_InitialDbChange2")]
-    partial class InitialDbChange2
+    [Migration("20220823113940_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

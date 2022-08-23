@@ -1,3 +1,18 @@
 {
-  "dependencies": {}
+  "dependencies": {
+    "mssql2": {
+      "ignored": "true",
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DefaultConnection"
+    },
+    "mssql3": {
+      "ignored": "true",
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:switterContextConnection"
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "swimter"
+    }
+  }
 }

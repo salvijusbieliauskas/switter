@@ -3,11 +3,14 @@
 @{
     ViewData["Title"] = "Garbage";
 }
+
+@inject SignInManager<switter.Areas.Identity.Data.switterUser> SignInManager
+@inject UserManager<switter.Areas.Identity.Data.switterUser> UserManager
 @using switter.Areas.Identity.Pages.Account
 <body style="background-color:#191d24;margin:auto">
     <div class="text-center" style="margin:auto">
     <partial name="_StatusMessage" for="StatusMessage"/>
-        @if (Request.Cookies["terms"] == null || Request.Cookies["terms"] == "false")
+        @if (Request.Cookies["terms"] == null && !SignInManager.IsSignedIn(User) || Request.Cookies["terms"] == "false" && !SignInManager.IsSignedIn(User))
         {
         <h1 style="color:white;">By using this website, you consent to the terms specified in the <a href="/Privacy">Privacy Policy</a> and agree to the <a href="/Rules">Rules</a></h1>
         <form method="post">

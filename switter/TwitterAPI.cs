@@ -73,27 +73,60 @@ namespace switter
                 }
             }
         }
-        public static List<int> GetTweets(List<string> tweetids)
+        public static List<Tweet2> GetTweets(List<string> tweetids)
         {
-            var list = new List<int>();
+            var list = new List<Tweet2>();
 
-            bool success = false;
             string auth = "Bearer "+bearer;
-            var client = new RestClient("https://api.twitter.com/2/tweets");
+            var client = new RestClient("https://api.twitter.com/2/tweets?ids="+tweetids.Join(",")+ "&tweet.fields=public_metrics");
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
             request.AddHeader("Authorization", auth);
             request.AddHeader("User-Agent", "SUDAS");
-            var dict = new Dictionary<string, object>();
-            dict.Add("ids", tweetids);
-            dict.Add("media.fields", "public_metrics");
-            var serialized = JsonConvert.SerializeObject(dict);
-            var body = serialized;
-            request.AddParameter("application/json", body, ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
-            System.Diagnostics.Debug.WriteLine("request: " + serialized);
             System.Diagnostics.Debug.WriteLine("response: "+response.Content);
 
+            if(response.Content.Substring(0, 8).Contains("data"))
+            {
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
+                if (data == null)
+                    return null;
+                JArray tweets = (JArray)data.GetValueOrDefault("data");
+                if (tweets.Count==0)
+                    return null;
+                foreach(var tweet in tweets)
+                {
+                    var HAHAHAHAHAH = JsonConvert.DeserializeObject<Dictionary<string, object>>(tweet.ToString());
+                    var id = (string)HAHAHAHAHAH.GetValueOrDefault("id", "");
+                    if (id == "")
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed getting tweet ID");
+                        continue;
+                    }
+                    var pubmetrics = JsonConvert.DeserializeObject<Dictionary<string,int>>(((JObject)HAHAHAHAHAH.GetValueOrDefault("public_metrics","")).ToString());
+                    //if (pubmetrics == "")
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine("Failed getting tweet public metrics");
+                    //    continue;
+                    //}
+                    //var splitmetrics = JsonConvert.DeserializeObject<Dictionary<string, int>>(pubmetrics);
+                    //if(splitmetrics==null)
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine("Failed getting tweet public metrics (2)");
+                    //    continue;
+                    //}
+                    //int retweets = splitmetrics.GetValueOrDefault("retweet_count", -1);
+                    //int likes = splitmetrics.GetValueOrDefault("like_count", -1);
+                    int retweets = pubmetrics.GetValueOrDefault("retweet_count", -1);
+                    int likes = pubmetrics.GetValueOrDefault("like_count", -1);
+                    if (likes == -1 || retweets == -1)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed getting likes and/or retweets");
+                        continue;
+                    }
+                    list.Add(new Tweet2(id, likes + retweets));
+                }
+            }
             return list;
         }
         public static List<string> forbiddenWords = new List<string>() { "nigger", "nlgger", "n1gger", "nigg3r", "n1gg3r", "nlg", "nig", "n|g", "n\\g", "n/g", "n//g", "n\\\\g" };
@@ -141,6 +174,16 @@ namespace switter
             //return "";
         }
         //
+    }
+    public class Tweet2
+    {
+        public string ID;
+        public int likes;
+        public Tweet2(string id, int likes)
+        {
+            this.ID = id;
+            this.likes = likes;
+        }
     }
     public class TwitterError
     {

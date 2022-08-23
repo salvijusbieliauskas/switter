@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Diagnostics;
 
@@ -14,11 +15,13 @@ namespace switter.Pages
 
         private readonly ILogger<LeaderboardModel> _logger;
         private readonly switter.Data.switterContext _context;
-        public IList<switter.Data.Post> post { get; set; }
-        public LeaderboardModel(ILogger<LeaderboardModel> logger, Data.switterContext context)
+        public IList<LeaderboardEntry> completedEntries; 
+        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
+        public LeaderboardModel(ILogger<LeaderboardModel> logger, Data.switterContext context, UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
         }
 
         public async void OnGet()
@@ -30,32 +33,80 @@ namespace switter.Pages
             List<string> request = new List<string>();
             for (int x = 0; x < postlist.Count;x++)
             {
+                Debug.WriteLine(postlist[x].ID);
                 request.Add(postlist[x].ID);
-                if(x%99==0||x==postlist.Count-1)
+                if(x+1%99==0||x==postlist.Count-1)
                 {
-                    requests.Add(request);
+                    requests.Add(request.GetRange(0,request.Count));
                     request.Clear();
                 }
             }
-            List<int> likes = new List<int>();
+            List<Tweet2> likes = new List<Tweet2>();
             foreach(List<string> str in requests)
             {
-                TwitterAPI.GetTweets(str);
+                var tweets = TwitterAPI.GetTweets(str);
+                if (tweets==null)
+                {
+                    continue;
+                }
+                likes.AddRange(tweets);
             }
-
-            post = _context.post.ToList();
+            if (likes.Count == 0)
+                return;
+            List<LeaderboardEntry> entries = new List<LeaderboardEntry>();
+            foreach(var user in _userManager.Users)
+            {
+                entries.Add(new LeaderboardEntry(0, user.UserName, 0, user.Id));
+            }
+            //go through every post, finding how many likes it got and the leaderboardentry of the poster
+            foreach(var post in _context.post.ToList())
+            {
+                int tweetIndex = findTweetByID(likes, post.ID);
+                int entryIndex = findEntryByID(entries, post.PosterID);
+                entries[entryIndex].Score = (int.Parse(entries[entryIndex].Score) + likes[tweetIndex].likes).ToString();
+            }
+            //sort entries
+            entries = entries.OrderByDescending(o => o.Score).ToList();
+            //add indexes
+            for(int x = 0; x < 10;x++)
+            {
+                entries[x].Rank = (x + 1).ToString();
+                if (x == entries.Count - 1)
+                    break;
+            }
+            completedEntries = entries.GetRange(0, entries.Count>10?10:entries.Count);
+        }
+        public int findEntryByID(List<LeaderboardEntry> entries,string id)
+        {
+            for(int x = 0; x < entries.Count;x++)
+            {
+                if (entries[x].userID == id)
+                    return x;
+            }
+            return -1;
+        }
+        public int findTweetByID(List<Tweet2> entries, string id)
+        {
+            for (int x = 0; x < entries.Count; x++)
+            {
+                if (entries[x].ID == id)
+                    return x;
+            }
+            return -1;
         }
     }
     public class LeaderboardEntry
     {
-        public string ID;
+        public string Score;
         public string Name;
-        public string index;
-        public LeaderboardEntry(string iD, string name, int index)
+        public string Rank;
+        public string userID;
+        public LeaderboardEntry(int points, string name, int index, string id)
         {
-            ID = iD;
+            Score = points.ToString();
             Name = name;
-            this.index = index.ToString();
+            this.Rank = index.ToString();
+            this.userID = id;
         }
     }
 }

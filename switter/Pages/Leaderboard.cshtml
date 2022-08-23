@@ -6,28 +6,35 @@
 
 <body style="background-color:#191d24">
     <h1 style="color:white">@ViewData["Title"]</h1>
-    <p style="color:white">This page displays 10 users that have so far gained the most likes on their posts.</p>
+    <p style="color:white">This page displays 10 users that have gained the most points</p>
+    <p style="color:white">Points are a combination of likes and retweets</p>
 </body>
 <table style="width:100%">
     <thead>
         <tr>
             <th style="color:white">
-                @Html.DisplayNameFor(model => model.post[0].ID)
+                @Html.DisplayNameFor(model => model.completedEntries[0].Rank)
             </th>
             <th style="color:white">
-                @Html.DisplayNameFor(model => model.post[0].PosterID)
+                @Html.DisplayNameFor(model => model.completedEntries[0].Name)
+            </th>
+            <th style="color:white">
+                @Html.DisplayNameFor(model => model.completedEntries[0].Score)
             </th>
             <th></th>
         </tr>
     </thead>
 <tbody>
-    @foreach (var item in Model.post) {
+    @foreach (var item in Model.completedEntries) {
         <tr>
             <td style="color:white">
-                @Html.DisplayFor(modelItem => item.ID)
+                @Html.DisplayFor(modelItem => item.Rank)
             </td>
             <td style="color:white">
-                @Html.DisplayFor(modelItem => item.PosterID)
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td style="color:white">
+                @Html.DisplayFor(modelItem => item.Score)
             </td>
         </tr>
     }
