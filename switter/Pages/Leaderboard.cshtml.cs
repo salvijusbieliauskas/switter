@@ -63,7 +63,11 @@ namespace switter.Pages
             {
                 int tweetIndex = findTweetByID(likes, post.ID);
                 int entryIndex = findEntryByID(entries, post.PosterID);
-                entries[entryIndex].Score = (int.Parse(entries[entryIndex].Score) + likes[tweetIndex].likes).ToString();
+                try
+                {
+                    entries[entryIndex].Score = (int.Parse(entries[entryIndex].Score) + likes[tweetIndex].likes).ToString();
+                }
+                catch { }
             }
             //sort entries
             entries = entries.OrderByDescending(o => o.Score).ToList();

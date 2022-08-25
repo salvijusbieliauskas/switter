@@ -22,6 +22,7 @@ namespace switter
     public static class TwitterAPI
     {
         static string apik, apis, acct, accs,bearer;
+        public static List<Pages.Cooldown> cooldowns = new List<Pages.Cooldown>();
         public static void init(string apikey, string apisecret, string accesstoken, string accesssecret, string bearertoken)
         {
             apik = apikey;
@@ -43,15 +44,24 @@ namespace switter
             request.AddHeader("Content-Type", "application/json");
             request.AddHeader("Cookie", "guest_id=v1%3A164647635225822612");
             var dict = new Dictionary<string, object>();
-            JArray jo2 = new JArray();
-            jo2.Add(mediaID);
-            dict.Add("text", tweet);
-            JObject jo = new JObject();
-            jo.Add("media_ids", jo2);
-            if (mediaID!="")
+            if (tweet != null && tweet == "")
+                tweet = null;
+            if (mediaID != null && mediaID == "")
+                mediaID = null;
+            if (mediaID == null && tweet == null)
             {
+                return new TwitterError(false, "Your tweet has no content", "");
+            }
+            if (mediaID!=null)
+            {
+                JArray jo2 = new JArray();
+                jo2.Add(mediaID);
+                JObject jo = new JObject();
+                jo.Add("media_ids", jo2);
                 dict.Add("media", jo);
             }
+            if(tweet!=null)
+                dict.Add("text", tweet);
             var serialized = JsonConvert.SerializeObject(dict);
             var body = serialized;
             request.AddParameter("application/json", body, ParameterType.RequestBody);
@@ -63,14 +73,7 @@ namespace switter
             }
             else
             {
-                try
-                {
-                    return new TwitterError(false, JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("detail", "An unknown error has occured"), "");
-                }
-                catch
-                {
-                    return new TwitterError(false, "An unknown error has occured", "");
-                }
+                return new TwitterError(false, JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("detail", JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("error", "An unknown error has occured")), "");
             }
         }
         public static List<Tweet2> GetTweets(List<string> tweetids)
@@ -104,19 +107,6 @@ namespace switter
                         continue;
                     }
                     var pubmetrics = JsonConvert.DeserializeObject<Dictionary<string,int>>(((JObject)HAHAHAHAHAH.GetValueOrDefault("public_metrics","")).ToString());
-                    //if (pubmetrics == "")
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("Failed getting tweet public metrics");
-                    //    continue;
-                    //}
-                    //var splitmetrics = JsonConvert.DeserializeObject<Dictionary<string, int>>(pubmetrics);
-                    //if(splitmetrics==null)
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("Failed getting tweet public metrics (2)");
-                    //    continue;
-                    //}
-                    //int retweets = splitmetrics.GetValueOrDefault("retweet_count", -1);
-                    //int likes = splitmetrics.GetValueOrDefault("like_count", -1);
                     int retweets = pubmetrics.GetValueOrDefault("retweet_count", -1);
                     int likes = pubmetrics.GetValueOrDefault("like_count", -1);
                     if (likes == -1 || retweets == -1)
@@ -134,7 +124,7 @@ namespace switter
         {
             if (tweet == null || tweet.Length == 0)
             {
-                return new TwitterError(false, "Your tweet should contain at least one character", "");
+                return new TwitterError(true, "Success", "");
             }
             else if (tweet.Length > 280)
             {

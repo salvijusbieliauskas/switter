@@ -23,7 +23,7 @@ namespace switter.Pages
         private readonly switter.Data.switterContext _context;
         private readonly IUserStore<Areas.Identity.Data.switterUser> userStore;
         private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
-
+        private static readonly TimeSpan cooldownTime = new TimeSpan(0, 3, 0);
         public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger, IUserStore<Areas.Identity.Data.switterUser> userStore, UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _logger = logger;
@@ -44,11 +44,14 @@ namespace switter.Pages
             public IFormFile Media { get; set; }
             public string AnotherInput { get; set; }
 
-            [Required]
             [StringLength(280, ErrorMessage = "The {0} must be at max {1} characters long.")]
             [DataType(DataType.Text)]
             [Display(Name = "Post text")]
             public string PostText { get; set; }
+        }
+        public string GetIp()
+        {
+            return Request.HttpContext.Connection.RemoteIpAddress.ToString();
         }
 
         //[TempData]
@@ -58,7 +61,31 @@ namespace switter.Pages
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-
+            //check cooldowns
+            System.Diagnostics.Debug.WriteLine(TwitterAPI.cooldowns.Count);
+            for(int x = 0; x < TwitterAPI.cooldowns.Count;x++)
+            {
+                if (TwitterAPI.cooldowns[x].ip.Equals(GetIp()))
+                {
+                    TimeSpan difference = DateTime.Now.Subtract(TwitterAPI.cooldowns[x].postTime);
+                    if (difference >= cooldownTime)
+                    {
+                        TwitterAPI.cooldowns.RemoveAt(x);
+                        break;
+                    }
+                    else
+                    {
+                        var somethiung = cooldownTime - difference;
+                        StatusMessage = "You have to wait "+somethiung.Minutes+" minutes and "+somethiung.Seconds+" seconds until you can post again";
+                        return Page();
+                    }
+                }
+                else if (DateTime.Now.Subtract(TwitterAPI.cooldowns[x].postTime) >= cooldownTime)
+                {
+                    TwitterAPI.cooldowns.RemoveAt(x);
+                }
+            }
+            //
 
             var verificationStatus = TwitterAPI.VerifyTweet(Input.PostText);
             if (verificationStatus.success)
@@ -70,7 +97,7 @@ namespace switter.Pages
                     {
                         StatusMessage = "Unsupported file type";
                         System.Diagnostics.Debug.WriteLine(Input.Media.ContentType);
-                        return LocalRedirect("/");
+                        return Page();
                     }
                     //means that there is some media
                     using (var memoryStream = new MemoryStream())
@@ -79,7 +106,7 @@ namespace switter.Pages
                         if(memoryStream.Length>5000000)
                         {
                             StatusMessage = "Maximum image size is 5MB";
-                            return LocalRedirect("/");
+                            return Page();
                         }
                         else
                         {
@@ -87,7 +114,7 @@ namespace switter.Pages
                             if (id == "failed")
                             {
                                 StatusMessage = "Image upload failed.";
-                                return LocalRedirect("/");
+                                return Page();
                             }
                             else
                             {
@@ -105,6 +132,8 @@ namespace switter.Pages
                         _context.post.Add(new Data.Post(status.ID,user.Id));
                         _context.SaveChanges();
                     }
+                    TwitterAPI.cooldowns.Add(new Cooldown(DateTime.Now, GetIp()));
+                    StatusMessage = "Tweet sent!";
                 }
                 else
                     StatusMessage = status.message;
@@ -113,13 +142,23 @@ namespace switter.Pages
             {
                 StatusMessage = verificationStatus.message;
             }
-            return LocalRedirect("/");
+            return Page();
         }
         public bool accepted = false;
         public IActionResult OnPostAccept(string data)
         {
             Response.Cookies.Append("terms", "true");
             return LocalRedirect("/");
+        }
+    }
+    public class Cooldown
+    {
+        public string ip;
+        public DateTime postTime;
+        public Cooldown(DateTime post, string ip)
+        {
+            this.ip = ip;
+            this.postTime = post;
         }
     }
 }
