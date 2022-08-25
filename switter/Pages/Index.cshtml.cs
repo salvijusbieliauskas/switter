@@ -77,6 +77,8 @@ namespace switter.Pages
                     {
                         var somethiung = cooldownTime - difference;
                         StatusMessage = "You have to wait "+somethiung.Minutes+" minutes and "+somethiung.Seconds+" seconds until you can post again";
+                        Input.Media = null;
+                        Input.PostText = null;
                         return Page();
                     }
                 }
@@ -97,6 +99,8 @@ namespace switter.Pages
                     {
                         StatusMessage = "Unsupported file type";
                         System.Diagnostics.Debug.WriteLine(Input.Media.ContentType);
+                        Input.Media = null;
+                        Input.PostText = null;
                         return Page();
                     }
                     //means that there is some media
@@ -106,6 +110,8 @@ namespace switter.Pages
                         if(memoryStream.Length>5000000)
                         {
                             StatusMessage = "Maximum image size is 5MB";
+                            Input.Media = null;
+                            Input.PostText = null;
                             return Page();
                         }
                         else
@@ -114,6 +120,8 @@ namespace switter.Pages
                             if (id == "failed")
                             {
                                 StatusMessage = "Image upload failed.";
+                                Input.Media = null;
+                                Input.PostText = null;
                                 return Page();
                             }
                             else
@@ -142,6 +150,8 @@ namespace switter.Pages
             {
                 StatusMessage = verificationStatus.message;
             }
+            Input.Media = null;
+            Input.PostText = null;
             return Page();
         }
         public bool accepted = false;
