@@ -52,12 +52,16 @@ namespace switter.Pages
         public string GetIp()
         {
             return Request.HttpContext.Connection.RemoteIpAddress.ToString();
-        }
+        }//
 
+        public async void OnGet()
+        {
+            HeaderText = "instead of refreshing, click on \"whatobama\" or \"Garbage\" to avoid posting a duplicate. atsitiktinis katinelio faktas: " + TwitterAPI.getCatFact();
+        }
         //[TempData]
         public string StatusMessage { get; set; }
         public List<string> supportedTypes = new List<string>() { "image/webp", "image/jpg", "image/jpeg", "image/png" };
-
+        public string HeaderText { get; set; }
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
@@ -160,6 +164,7 @@ namespace switter.Pages
             Response.Cookies.Append("terms", "true");
             return LocalRedirect("/");
         }
+
     }
     public class Cooldown
     {

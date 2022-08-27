@@ -77,6 +77,15 @@ namespace switter
                 return new TwitterError(false, JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("detail", JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("error", "An unknown error has occured")), "");
             }
         }
+        public static string getCatFact()
+        {
+            var client = new RestClient("https://catfact.ninja/fact?max_length=140");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Accept", "application/json");
+            IRestResponse response = client.Execute(request);
+
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content).GetValueOrDefault("fact","pamirsau");
+        }
         public static List<Tweet2> GetTweets(List<string> tweetids)
         {
             var list = new List<Tweet2>();
