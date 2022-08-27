@@ -18,7 +18,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<switter.Areas.Identity.Data.switterUser>(options => { options.SignIn.RequireConfirmedAccount = true; options.Password.RequireLowercase = true;options.Password.RequireUppercase = true;options.Password.RequireNonAlphanumeric = false; })
     .AddEntityFrameworkStores<switterContext>();
 builder.Services.AddRazorPages();
-
+builder.Services.AddHostedService<HostedService>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 TwitterAPI.init(builder.Configuration["ConsumerKey"], builder.Configuration["ConsumerSecret"], builder.Configuration["AccessToken"], builder.Configuration["AccessSecret"], builder.Configuration["BearerToken"]);

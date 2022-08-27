@@ -22,6 +22,7 @@ namespace switter
     public static class TwitterAPI
     {
         static string apik, apis, acct, accs,bearer;
+        public static IList<Pages.LeaderboardEntry> completedEntries;
         public static List<Pages.Cooldown> cooldowns = new List<Pages.Cooldown>();
         public static void init(string apikey, string apisecret, string accesstoken, string accesssecret, string bearertoken)
         {
