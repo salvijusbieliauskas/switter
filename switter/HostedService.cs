@@ -81,7 +81,7 @@ namespace switter
                     catch { }
                 }
                 //sort entries
-                entries = entries.OrderByDescending(o => o.Score).ToList();
+                entries = entries.OrderByDescending(o => int.Parse(o.Score)).ToList();
                 //add indexes
                 for (int x = 0; x < 10; x++)
                 {

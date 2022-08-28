@@ -60,14 +60,14 @@ namespace switter.Pages
         }
         //[TempData]
         public string StatusMessage { get; set; }
-        public List<string> supportedTypes = new List<string>() { "image/webp", "image/jpg", "image/jpeg", "image/png" };
+        public List<string> supportedTypes = new List<string>() { "image/webp", "image/jpg", "image/jpeg", "image/png"};
         public string HeaderText { get; set; }
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             //check cooldowns
             System.Diagnostics.Debug.WriteLine(TwitterAPI.cooldowns.Count);
-            for(int x = 0; x < TwitterAPI.cooldowns.Count;x++)
+            for (int x = 0; x < TwitterAPI.cooldowns.Count; x++)
             {
                 if (TwitterAPI.cooldowns[x].ip.Equals(GetIp()))
                 {
@@ -80,7 +80,7 @@ namespace switter.Pages
                     else
                     {
                         var somethiung = cooldownTime - difference;
-                        StatusMessage = "You have to wait "+somethiung.Minutes+" minutes and "+somethiung.Seconds+" seconds until you can post again";
+                        StatusMessage = "You have to wait " + somethiung.Minutes + " minutes and " + somethiung.Seconds + " seconds until you can post again";
                         Input.Media = null;
                         Input.PostText = null;
                         return Page();
@@ -91,7 +91,7 @@ namespace switter.Pages
                     TwitterAPI.cooldowns.RemoveAt(x);
                 }
             }
-            //
+
 
             var verificationStatus = TwitterAPI.VerifyTweet(Input.PostText);
             if (verificationStatus.success)
@@ -111,9 +111,16 @@ namespace switter.Pages
                     using (var memoryStream = new MemoryStream())
                     {
                         await Input.Media.CopyToAsync(memoryStream);
-                        if(memoryStream.Length>5000000)
+                        if(memoryStream.Length>5000000 && !Input.Media.ContentType.Equals("image/gif"))
                         {
                             StatusMessage = "Maximum image size is 5MB";
+                            Input.Media = null;
+                            Input.PostText = null;
+                            return Page();
+                        }
+                        else if(memoryStream.Length > 15000000&&Input.Media.ContentType.Equals("images/gif"))
+                        {
+                            StatusMessage = "Maximum gif size is 15MB";
                             Input.Media = null;
                             Input.PostText = null;
                             return Page();

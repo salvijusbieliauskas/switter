@@ -169,7 +169,7 @@ namespace switter
             string Base64File = Convert.ToBase64String(bytes);
             string response = twit.UpdateMedia(Base64File);
             var what = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
-            System.Diagnostics.Debug.WriteLine(response);
+            System.Diagnostics.Debug.WriteLine("resonse:a "+response);
             return (string)what.GetValueOrDefault("media_id_string","failed");
             //return "";
         }
