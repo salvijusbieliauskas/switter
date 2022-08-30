@@ -23,7 +23,7 @@ namespace switter.Pages
         private readonly switter.Data.switterContext _context;
         private readonly IUserStore<Areas.Identity.Data.switterUser> userStore;
         private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
-        private static readonly TimeSpan cooldownTime = new TimeSpan(0, 3, 0);
+        private static readonly TimeSpan cooldownTime = new TimeSpan(0, 10, 0);
         public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger, IUserStore<Areas.Identity.Data.switterUser> userStore, UserManager<Areas.Identity.Data.switterUser> userManager)
         {
             _logger = logger;
