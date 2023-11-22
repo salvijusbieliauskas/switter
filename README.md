@@ -1,1 +1,1 @@
-Bad concept website, which lets users share a single twitter account, optionally anonymously
+Bad concept website, which lets users share a single Twitter account, optionally anonymously
