@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using switter.Areas.Identity.Data;
 
 namespace switter.Data;
 
-public class switterContext : IdentityDbContext<switterUser>
+public class SwitterContext : IdentityDbContext<SwitterUser>
 {
-    public switterContext(DbContextOptions<switterContext> options)
+    public SwitterContext(DbContextOptions<SwitterContext> options)
         : base(options)
     {
     }
-    public DbSet<Post> post { get; set; }
+
+    public DbSet<Post> Post { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -22,13 +23,15 @@ public class switterContext : IdentityDbContext<switterUser>
         // Add your customizations after calling base.OnModelCreating(builder);
     }
 }
+
 public class Post
 {
-    public string ID { get; set; }
-    public string PosterID { get; set; }
-    public Post(string iD, string posterID)
+    public Post(string iD, string posterId)
     {
-        ID = iD;
-        PosterID = posterID;
+        Id = iD;
+        PosterId = posterId;
     }
+
+    public string Id { get; set; }
+    public string PosterId { get; set; }
 }

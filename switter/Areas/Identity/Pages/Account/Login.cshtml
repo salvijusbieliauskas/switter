@@ -6,35 +6,41 @@
 }
 
 <body style="background-color:#191d24;margin:auto">
-    <form id="account" method="post" style="border:1px solid white;margin-left:auto;margin-right:auto;display:block;width:50%;margin-top:auto;margin-bottom:auto;height:80%;text-align:center;display:flex;overflow:auto;flex-direction:column;border-radius: 5px;justify-content:space-around">
+<form id="account" method="post"
+      style="border:1px solid white;margin-left:auto;margin-right:auto;display:block;width:50%;margin-top:auto;margin-bottom:auto;height:80%;text-align:center;display:flex;overflow:auto;flex-direction:column;border-radius: 5px;justify-content:space-around">
     <h2 style="color:white">@ViewData["Title"]</h2>
-        <hr />
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <label asp-for="Input.Username" style="color:white"></label>
-        <input asp-for="Input.Username" style="margin:10px;padding:10px;text-align:center" autocomplete="email" aria-required="true" />
-        <span asp-validation-for="Input.Username" style="color:white"></span>
-        <label asp-for="Input.Password" style="color:white"></label>
-        <input asp-for="Input.Password" autocomplete="current-password" aria-required="true" style="margin:10px;padding:10px;text-align:center"/>
-        <span asp-validation-for="Input.Password" style="color:white"></span>
-        <div class="checkbox" style="color:white">
-            <label asp-for="Input.RememberMe" class="form-label" style="color:white">
-                <input class="form-check-input" asp-for="Input.RememberMe"/>
-                @Html.DisplayNameFor(m => m.Input.RememberMe)
-            </label>
-        </div>
-        <button id="login-submit" style="background-color:#61dbfb; color:#191d24;margin:10px;padding:10px;border-radius: 12px;" type="submit">Log in</button>
-        <p>
-            <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-        </p>
-        <p>
-            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-        </p>
-        <p>
-            <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-        </p>
-    </form>
+    <hr/>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <label asp-for="Input.Username" style="color:white"></label>
+    <input asp-for="Input.Username" style="margin:10px;padding:10px;text-align:center" autocomplete="email"
+           aria-required="true"/>
+    <span asp-validation-for="Input.Username" style="color:white"></span>
+    <label asp-for="Input.Password" style="color:white"></label>
+    <input asp-for="Input.Password" autocomplete="current-password" aria-required="true"
+           style="margin:10px;padding:10px;text-align:center"/>
+    <span asp-validation-for="Input.Password" style="color:white"></span>
+    <div class="checkbox" style="color:white">
+        <label asp-for="Input.RememberMe" class="form-label" style="color:white">
+            <input class="form-check-input" asp-for="Input.RememberMe"/>
+            @Html.DisplayNameFor(m => m.Input.RememberMe)
+        </label>
+    </div>
+    <button id="login-submit"
+            style="background-color:#61dbfb; color:#191d24;margin:10px;padding:10px;border-radius: 12px;" type="submit">
+        Log in
+    </button>
+    <p>
+        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+    </p>
+    <p>
+        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+    </p>
+    <p>
+        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+    </p>
+</form>
 </body>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
 }

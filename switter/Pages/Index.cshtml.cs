@@ -1,186 +1,187 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using switter.Areas.Identity.Data;
+using switter.Data;
 
-namespace switter.Pages
+namespace switter.Pages;
+
+public class IndexModel1 : PageModel
 {
-    public class IndexModel1 : PageModel
+    private static readonly TimeSpan CooldownTime = new(0, 10, 0);
+    private readonly SwitterContext _context;
+    private readonly ILogger<IndexModel1> _logger;
+    private readonly UserManager<SwitterUser> _userManager;
+    private readonly IUserStore<SwitterUser> _userStore;
+    public bool Accepted = false;
+    public List<string> SupportedTypes = new() { "image/webp", "image/jpg", "image/jpeg", "image/png" };
+
+    public IndexModel1(SwitterContext context, ILogger<IndexModel1> logger, IUserStore<SwitterUser> userStore,
+        UserManager<SwitterUser> userManager)
     {
-        private readonly ILogger<IndexModel1> _logger;
-        private readonly switter.Data.switterContext _context;
-        private readonly IUserStore<Areas.Identity.Data.switterUser> userStore;
-        private readonly UserManager<Areas.Identity.Data.switterUser> _userManager;
-        private static readonly TimeSpan cooldownTime = new TimeSpan(0, 10, 0);
-        public IndexModel1(switter.Data.switterContext context, ILogger<IndexModel1> logger, IUserStore<Areas.Identity.Data.switterUser> userStore, UserManager<Areas.Identity.Data.switterUser> userManager)
-        {
-            _logger = logger;
-            _context = context;
-            _userManager = userManager;
-        }
-        public string ReturnUrl { get; set; }
+        _logger = logger;
+        _context = context;
+        _userManager = userManager;
+    }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+    public string ReturnUrl { get; set; }
 
-        public class InputModel
-        {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            public IFormFile Media { get; set; }
-            public string AnotherInput { get; set; }
+    [BindProperty] public InputModel Input { get; set; }
 
-            [StringLength(280, ErrorMessage = "The {0} must be at max {1} characters long.")]
-            [DataType(DataType.Text)]
-            [Display(Name = "Post text")]
-            public string PostText { get; set; }
-        }
-        public string GetIp()
-        {
-            return Request.HttpContext.Connection.RemoteIpAddress.ToString();
-        }//
+    //[TempData]
+    public string StatusMessage { get; set; }
+    public string HeaderText { get; set; }
 
-        public async void OnGet()
+    public string GetIp()
+    {
+        return Request.HttpContext.Connection.RemoteIpAddress.ToString();
+    } //
+
+    public async void OnGet()
+    {
+        HeaderText =
+            "instead of refreshing, click on \"switter\" or \"Garbage\" to avoid posting a duplicate. atsitiktinis katinelio faktas: " +
+            TwitterApi.GetCatFact();
+    }
+
+    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+    {
+        returnUrl ??= Url.Content("~/");
+        //check cooldowns
+        Debug.WriteLine(TwitterApi.Cooldowns.Count);
+        for (var x = 0; x < TwitterApi.Cooldowns.Count; x++)
         {
-            HeaderText = "instead of refreshing, click on \"whatobama\" or \"Garbage\" to avoid posting a duplicate. atsitiktinis katinelio faktas: " + TwitterAPI.getCatFact();
-        }
-        //[TempData]
-        public string StatusMessage { get; set; }
-        public List<string> supportedTypes = new List<string>() { "image/webp", "image/jpg", "image/jpeg", "image/png"};
-        public string HeaderText { get; set; }
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        {
-            returnUrl ??= Url.Content("~/");
-            //check cooldowns
-            System.Diagnostics.Debug.WriteLine(TwitterAPI.cooldowns.Count);
-            for (int x = 0; x < TwitterAPI.cooldowns.Count; x++)
+            if (TwitterApi.Cooldowns[x].Ip.Equals(GetIp()))
             {
-                if (TwitterAPI.cooldowns[x].ip.Equals(GetIp()))
+                var difference = DateTime.Now.Subtract(TwitterApi.Cooldowns[x].PostTime);
+                if (difference >= CooldownTime)
                 {
-                    TimeSpan difference = DateTime.Now.Subtract(TwitterAPI.cooldowns[x].postTime);
-                    if (difference >= cooldownTime)
+                    TwitterApi.Cooldowns.RemoveAt(x);
+                    break;
+                }
+
+                var somethiung = CooldownTime - difference;
+                StatusMessage = "You have to wait " + somethiung.Minutes + " minutes and " + somethiung.Seconds +
+                                " seconds until you can post again";
+                Input.Media = null;
+                Input.PostText = null;
+                return Page();
+            }
+
+            if (DateTime.Now.Subtract(TwitterApi.Cooldowns[x].PostTime) >= CooldownTime)
+                TwitterApi.Cooldowns.RemoveAt(x);
+        }
+
+
+        var verificationStatus = TwitterApi.VerifyTweet(Input.PostText);
+        if (verificationStatus.Success)
+        {
+            var mediaId = "";
+            if (Input.Media != null && Input.Media.Length > 0)
+            {
+                if (!SupportedTypes.Contains(Input.Media.ContentType))
+                {
+                    StatusMessage = "Unsupported file type";
+                    Debug.WriteLine(Input.Media.ContentType);
+                    Input.Media = null;
+                    Input.PostText = null;
+                    return Page();
+                }
+
+                //means that there is some media
+                using (var memoryStream = new MemoryStream())
+                {
+                    await Input.Media.CopyToAsync(memoryStream);
+                    if (memoryStream.Length > 5000000 && !Input.Media.ContentType.Equals("image/gif"))
                     {
-                        TwitterAPI.cooldowns.RemoveAt(x);
-                        break;
-                    }
-                    else
-                    {
-                        var somethiung = cooldownTime - difference;
-                        StatusMessage = "You have to wait " + somethiung.Minutes + " minutes and " + somethiung.Seconds + " seconds until you can post again";
+                        StatusMessage = "Maximum image size is 5MB";
                         Input.Media = null;
                         Input.PostText = null;
                         return Page();
                     }
-                }
-                else if (DateTime.Now.Subtract(TwitterAPI.cooldowns[x].postTime) >= cooldownTime)
-                {
-                    TwitterAPI.cooldowns.RemoveAt(x);
+
+                    if (memoryStream.Length > 15000000 && Input.Media.ContentType.Equals("images/gif"))
+                    {
+                        StatusMessage = "Maximum gif size is 15MB";
+                        Input.Media = null;
+                        Input.PostText = null;
+                        return Page();
+                    }
+
+                    var id = TwitterApi.UploadImage(memoryStream.ToArray());
+                    if (id == "failed")
+                    {
+                        StatusMessage = "Image upload failed.";
+                        Input.Media = null;
+                        Input.PostText = null;
+                        return Page();
+                    }
+
+                    mediaId = id;
                 }
             }
 
-
-            var verificationStatus = TwitterAPI.VerifyTweet(Input.PostText);
-            if (verificationStatus.success)
+            var status = TwitterApi.SendTweet(Input.PostText, mediaId);
+            if (status.Success)
             {
-                string mediaID = "";
-                if(Input.Media != null && Input.Media.Length>0)
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
                 {
-                    if (!supportedTypes.Contains(Input.Media.ContentType))
-                    {
-                        StatusMessage = "Unsupported file type";
-                        System.Diagnostics.Debug.WriteLine(Input.Media.ContentType);
-                        Input.Media = null;
-                        Input.PostText = null;
-                        return Page();
-                    }
-                    //means that there is some media
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await Input.Media.CopyToAsync(memoryStream);
-                        if(memoryStream.Length>5000000 && !Input.Media.ContentType.Equals("image/gif"))
-                        {
-                            StatusMessage = "Maximum image size is 5MB";
-                            Input.Media = null;
-                            Input.PostText = null;
-                            return Page();
-                        }
-                        else if(memoryStream.Length > 15000000&&Input.Media.ContentType.Equals("images/gif"))
-                        {
-                            StatusMessage = "Maximum gif size is 15MB";
-                            Input.Media = null;
-                            Input.PostText = null;
-                            return Page();
-                        }
-                        else
-                        {
-                            string id = TwitterAPI.UploadImage(memoryStream.ToArray());
-                            if (id == "failed")
-                            {
-                                StatusMessage = "Image upload failed.";
-                                Input.Media = null;
-                                Input.PostText = null;
-                                return Page();
-                            }
-                            else
-                            {
-                                mediaID = id;
-                            }
-                        }
-                    }
+                    _context.Post.Add(new Post(status.Id, user.Id));
+                    _context.SaveChanges();
                 }
-                var status = TwitterAPI.SendTweet(Input.PostText, mediaID);
-                if (status.success)
-                {
-                    var user = await _userManager.GetUserAsync(User);
-                    if (user != null)
-                    {
-                        _context.post.Add(new Data.Post(status.ID,user.Id));
-                        _context.SaveChanges();
-                    }
-                    TwitterAPI.cooldowns.Add(new Cooldown(DateTime.Now, GetIp()));
-                    StatusMessage = "Tweet sent!";
-                }
-                else
-                    StatusMessage = status.message;
-            } 
+
+                TwitterApi.Cooldowns.Add(new Cooldown(DateTime.Now, GetIp()));
+                StatusMessage = "Tweet sent!";
+            }
             else
             {
-                StatusMessage = verificationStatus.message;
+                StatusMessage = status.Message;
             }
-            Input.Media = null;
-            Input.PostText = null;
-            return Page();
         }
-        public bool accepted = false;
-        public IActionResult OnPostAccept(string data)
+        else
         {
-            Response.Cookies.Append("terms", "true");
-            return LocalRedirect("/");
+            StatusMessage = verificationStatus.Message;
         }
 
+        Input.Media = null;
+        Input.PostText = null;
+        return Page();
     }
-    public class Cooldown
+
+    public IActionResult OnPostAccept(string data)
     {
-        public string ip;
-        public DateTime postTime;
-        public Cooldown(DateTime post, string ip)
-        {
-            this.ip = ip;
-            this.postTime = post;
-        }
+        Response.Cookies.Append("terms", "true");
+        return LocalRedirect("/");
+    }
+
+    public class InputModel
+    {
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IFormFile Media { get; set; }
+
+        public string AnotherInput { get; set; }
+
+        [StringLength(280, ErrorMessage = "The {0} must be at max {1} characters long.")]
+        [DataType(DataType.Text)]
+        [Display(Name = "Post text")]
+        public string PostText { get; set; }
+    }
+}
+
+public class Cooldown
+{
+    public string Ip;
+    public DateTime PostTime;
+
+    public Cooldown(DateTime post, string ip)
+    {
+        this.Ip = ip;
+        PostTime = post;
     }
 }

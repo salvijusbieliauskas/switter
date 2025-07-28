@@ -1,40 +1,41 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace switter.Pages
+namespace switter.Pages;
+
+[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+[IgnoreAntiforgeryToken]
+public class SignupModel : PageModel
 {
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    [IgnoreAntiforgeryToken]
-    public class SignupModel : PageModel
+    private readonly ILogger<SignupModel> _logger;
+
+    public SignupModel(ILogger<SignupModel> logger)
     {
-        public string? RequestId { get; set; }
+        _logger = logger;
+    }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    public string? RequestId { get; set; }
 
-        private readonly ILogger<SignupModel> _logger;
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        public SignupModel(ILogger<SignupModel> logger)
-        {
-            _logger = logger;
-        }
+    [Required]
+    [Display(Name = "Username")]
+    public string UserName { get; set; }
 
-        public void OnGet()
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-        }
-        [Required]
-        [Display(Name = "Username")]
-        public string UserName { get; set; }
-        [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-        [Required]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-        [Required]
-        [Display(Name = "VerifyPassword")]
-        public string VerifyPassword { get; set; }
+    [Required] [Display(Name = "Email")] public string Email { get; set; }
+
+    [Required]
+    [Display(Name = "Password")]
+    public string Password { get; set; }
+
+    [Required]
+    [Display(Name = "VerifyPassword")]
+    public string VerifyPassword { get; set; }
+
+    public void OnGet()
+    {
+        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
     }
 }

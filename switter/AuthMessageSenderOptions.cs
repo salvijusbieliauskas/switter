@@ -1,7 +1,6 @@
-﻿namespace switter
+﻿namespace switter;
+
+public class AuthMessageSenderOptions
 {
-    public class AuthMessageSenderOptions
-    {
-        public string? SendGridKey { get; set; }
-    }
+    public string? SendGridKey { get; set; }
 }

@@ -1,27 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Diagnostics;
 
-namespace switter.Pages
+namespace switter.Pages;
+
+[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+[IgnoreAntiforgeryToken]
+public class AboutModel : PageModel
 {
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    [IgnoreAntiforgeryToken]
-    public class AboutModel : PageModel
+    private readonly ILogger<AboutModel> _logger;
+
+    public AboutModel(ILogger<AboutModel> logger)
     {
-        public string? RequestId { get; set; }
+        _logger = logger;
+    }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    public string? RequestId { get; set; }
 
-        private readonly ILogger<AboutModel> _logger;
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        public AboutModel(ILogger<AboutModel> logger)
-        {
-            _logger = logger;
-        }
-
-        public void OnGet()
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-        }
+    public void OnGet()
+    {
+        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
     }
 }

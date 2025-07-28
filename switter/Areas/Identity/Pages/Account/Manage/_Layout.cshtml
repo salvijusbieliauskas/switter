@@ -5,7 +5,7 @@
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
     }
 }
 
@@ -13,10 +13,10 @@
 <h1 style="color:white">Manage your account</h1>
 
 <div>
-    <hr />
+    <hr/>
     <div class="row">
         <div class="col-md-3">
-            <partial name="_ManageNav" />
+            <partial name="_ManageNav"/>
         </div>
         <div class="col-md-9">
             @RenderBody()
@@ -24,6 +24,7 @@
     </div>
 </div>
 </body>
+
 @section Scripts {
-    @RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", false)
 }
